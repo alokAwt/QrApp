@@ -1,20 +1,46 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useState, useContext } from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import Onboarding from "./Src/Navigation/Onboarding";
+import BottomTab from "./Src/Navigation/BottomTab";
+import { AuthContext, Authprovider, Themeprovider } from "./Src/Context/Theme";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export default function App() {
+const CheckLoginStatus = () => {
+  const { login, setLogin } = useContext(AuthContext);
+
+  useEffect(() => {
+    const GetLoginStatus = async () => {
+      try {
+        let login = await AsyncStorage.getItem("login");
+
+        if (login !== null) {
+          setLogin(true);
+        } else {
+          setLogin(false);
+        }
+      } catch (error) {
+        console.error("Error fetching login status:", error);
+      }
+    };
+
+    GetLoginStatus();
+  }, []);
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <Onboarding />
+    </NavigationContainer>
+  );
+};
+
+function App() {
+  return (
+    <Authprovider>
+      <Themeprovider>
+        <CheckLoginStatus />
+      </Themeprovider>
+    </Authprovider>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default App;
